@@ -24,7 +24,7 @@ func (this *ShortCodeManager) AddPlugIn(plugInName string, plugIn PlugIn) {
 	this.plugIns[plugInName] = plugIn
 }
 
-func (this *ShortCodeManager) Reserve(plugInName string, data interface{}) (shortCode string, err error) {
+func (this *ShortCodeManager) Generate(plugInName string, data interface{}) (shortCode string, err error) {
     plugIn, ok := this.plugIns[plugInName]
     if !ok {
         err = ErrPlugInNotFound
