@@ -13,10 +13,10 @@ type mapper struct {
 }
 
 type MongoGenerator struct {
-    collection mgo.Collection
+    collection *mgo.Collection
 }
 
-func NewGenerator(c mgo.Collection) Generator {
+func NewGenerator(c *mgo.Collection) Generator {
     return &MongoGenerator{c}
 }
 

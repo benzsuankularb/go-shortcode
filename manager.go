@@ -60,6 +60,10 @@ func (this *ShortCodeManager) Execute(code string) error {
     if err != nil {
         return err
     }
+    err = this.Generator.Release(code)
+    if err != nil {
+        // TODO log
+    }
     return nil
 }
 
@@ -75,6 +79,10 @@ func (this *ShortCodeManager) Revoke(code string) error {
     err = plugIn.Revoke(code)
     if err != nil {
         return err
+    }
+    err = this.Generator.Release(code)
+    if err != nil {
+        // TODO log
     }
     return nil
 }
