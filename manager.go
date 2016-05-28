@@ -4,87 +4,22 @@ import (
     "errors"
 )
 
-func NewManager(generator Generator) *ShortCodeManager {
-	return &ShortCodeManager{
-		generator,
-        map[string]PlugIn{},
-	}
-}
-
 var (
-    ErrPlugInNotFound = errors.New("plugin-manager : PlugIn not found") 
+    ErrPlugInNotFound = errors.New("shortcode : PlugIn not found")
+    ErrAlreadyExist = errors.New("shortcode : Already exist") 
 )
 
-type ShortCodeManager struct {
-	Generator
-	plugIns 	map[string]PlugIn
+type Manager interface {
+    AddPlugIn(plugInName string, plugIn PlugIn)
+    Generate(plugInName string, data interface{}) (shortCode string, err error)
+    Execute(code string) error
+    Revoke(code string) error
 }
 
-func (this *ShortCodeManager) AddPlugIn(plugInName string, plugIn PlugIn) {
-	this.plugIns[plugInName] = plugIn
-}
-
-func (this *ShortCodeManager) Generate(plugInName string, data interface{}) (shortCode string, err error) {
-    plugIn, ok := this.plugIns[plugInName]
-    if !ok {
-        err = ErrPlugInNotFound
-        return
-    }
-    shortCode, err = this.Generator.Reserve(plugInName)
-    if err != nil {
-        return
-    }
-    defer func() {
-        if r := recover(); r != nil {
-            this.Generator.Release(shortCode)
-            shortCode = ""
-        }
-    }()
-	err = plugIn.Reserve(shortCode, data)
-    if err != nil {
-        panic(err)
-    }
-    return
-}
-
-func (this *ShortCodeManager) Execute(code string) error {
-    plugInName, err := this.Generator.GetPlugInName(code)
-    if err != nil {
-        return err
-    }
-    plugIn, ok := this.plugIns[plugInName]
-    if !ok {
-        return ErrPlugInNotFound
-    }
-    err = plugIn.Execute(code)
-    if err != nil {
-        return err
-    }
-    err = this.Generator.Release(code)
-    if err != nil {
-        // TODO log
-    }
-    return nil
-}
-
-func (this *ShortCodeManager) Revoke(code string) error {
-    plugInName, err := this.Generator.GetPlugInName(code)
-    if err != nil {
-        return err
-    }
-    plugIn, ok := this.plugIns[plugInName]
-    if !ok {
-        return ErrPlugInNotFound
-    }
-    err = plugIn.Revoke(code)
-    if err != nil {
-        return err
-    }
-    err = this.Generator.Release(code)
-    if err != nil {
-        // TODO log
-    }
-    return nil
+type TempManager interface {
+    Save(key string, shortCode string) error
+    Remove(key string) error
+    Get(key string) (shortCode *string, err error)
 }
 
 type PlugIn interface {
