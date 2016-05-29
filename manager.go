@@ -16,12 +16,6 @@ type Manager interface {
     Revoke(code string) error
 }
 
-type TempManager interface {
-    Save(key string, shortCode string) error
-    Remove(key string) error
-    Get(key string) (shortCode *string, err error)
-}
-
 type PlugIn interface {
 	Reserve(shortCode string, data interface{}) error
 	Execute(shortCode string) error
