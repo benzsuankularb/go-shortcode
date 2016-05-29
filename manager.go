@@ -26,4 +26,7 @@ type PlugIn interface {
 	Reserve(shortCode string, data interface{}) error
 	Execute(shortCode string) error
     Revoke(shortCode string) error
+    
+    // Incase you have created shortcode. You may not want to create it again 
+    Temporary(data interface{}) (*string, error)
 }

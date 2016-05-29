@@ -22,6 +22,15 @@ func (this *CoreManager) Generate(plugInName string, data interface{}) (shortCod
         err = ErrPlugInNotFound
         return
     }
+    
+    pTempCode, err := plugIn.Temporary(data)
+    if err != nil {
+        return
+    }
+    if pTempCode != nil {
+        shortCode = *pTempCode
+        return
+    }
     shortCode, err = this.Generator.Reserve(plugInName)
     if err != nil {
         return
