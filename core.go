@@ -87,3 +87,17 @@ func (this *CoreManager) Revoke(code string) error {
     }
     return nil
 }
+
+func (this *CoreManager) GetData(code string) (plugInName string, data interface{}, err error) {
+    plugInName, err = this.Generator.GetPlugInName(code)
+    if err != nil {
+        return
+    }
+    plugIn, ok := this.plugIns[plugInName]
+    if !ok {
+        err = ErrPlugInNotFound
+        return
+    }
+    data, err = plugIn.Get(code)
+    return
+}
