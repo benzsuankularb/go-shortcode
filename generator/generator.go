@@ -59,6 +59,7 @@ func (this *MongoGenerator) Release(code string) error {
 
 func (this *MongoGenerator) GetPlugInName(code string) (string, error) {
     result := mapper{}
+    
     q := this.collection.FindId(code)
     c, err := q.Count()
     if err != nil {
@@ -79,6 +80,7 @@ func (this *MongoGenerator) IsAvailable(code string) bool {
 }
 
 func RandomCode() string {
+    
 	result := ""
 	for i := 0; i < 4 ; i++ {
 		result += randomDigit()

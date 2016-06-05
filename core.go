@@ -16,36 +16,29 @@ func (this *CoreManager) AddPlugIn(plugInName string, plugIn PlugIn) {
 	this.plugIns[plugInName] = plugIn
 }
 
-func (this *CoreManager) Generate(plugInName string, data interface{}) (shortCode string, err error) {
+func (this *CoreManager) Generate(plugInName string, data interface{}) (string, error) {
     plugIn, ok := this.plugIns[plugInName]
     if !ok {
-        err = ErrPlugInNotFound
-        return
+        return "", ErrPlugInNotFound
     }
     
     pTempCode, err := plugIn.Temporary(data)
     if err != nil {
-        return
+        return "", err
     }
     if pTempCode != nil {
-        shortCode = *pTempCode
-        return
+        return *pTempCode, nil
     }
-    shortCode, err = this.Generator.Reserve(plugInName)
+    shortCode, err := this.Generator.Reserve(plugInName)
     if err != nil {
-        return
+        return "", err
     }
-    defer func() {
-        if r := recover(); r != nil {
-            this.Generator.Release(shortCode)
-            shortCode = ""
-        }
-    }()
 	err = plugIn.Reserve(shortCode, data)
     if err != nil {
-        panic(err)
+        this.Generator.Release(shortCode)
+        return "", err 
     }
-    return
+    return shortCode, nil
 }
 
 func (this *CoreManager) Execute(code string) error {
@@ -90,6 +83,7 @@ func (this *CoreManager) Revoke(code string) error {
 
 func (this *CoreManager) GetData(code string) (plugInName string, data interface{}, err error) {
     plugInName, err = this.Generator.GetPlugInName(code)
+    
     if err != nil {
         return
     }
